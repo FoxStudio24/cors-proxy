@@ -18,21 +18,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const upstream = await fetch(url, {
-      method: req.method,
-      headers: {
-        ...req.headers,
-        host: undefined,
-        origin: undefined
-      },
-      body: ['GET','HEAD'].includes(req.method) ? undefined : req.body
-    });
-
-    const data = await upstream.arrayBuffer();
+    const upstream = await fetch(url);
+    const json = await upstream.json();
 
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/octet-stream');
-    return res.status(upstream.status).send(Buffer.from(data));
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(200).json(json);
   } catch (err) {
     return res.status(502).json({ error: 'Fetch failed', details: err.message });
   }
